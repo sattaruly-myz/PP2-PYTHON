@@ -1,0 +1,6 @@
+myvar = "Myrzabek"
+my_var = "Myrzabek"
+_my_var = "Myrzabek"
+myVar = "Myrzabek"
+MYVAR = "Myrzabek"
+myvar2 = "Myrzabek"
