@@ -1,6 +1,6 @@
 x = 12345j
 q = 35
-w = "print"
+w = "prints"
 e = 35.5
 r = ["ff", "bs", "pp"]
 t = ("gen", "male", "f")

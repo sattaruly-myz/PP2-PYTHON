@@ -1,5 +1,5 @@
 x="hihiha"
 def func():
     print(x)
-    x="kbtu"
+    x="kbtuu"
     print(x)

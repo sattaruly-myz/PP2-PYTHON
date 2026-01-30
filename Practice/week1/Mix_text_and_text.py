@@ -1,1 +1,1 @@
-print("I am", 17, "years old.")
+print("I am", 17, "years old")
