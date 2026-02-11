@@ -7,4 +7,4 @@ def check_number(n):
         return "zero"
 
 result = check_number(0)
-print(result.upper())
+print(result.upper()) #hihiha
