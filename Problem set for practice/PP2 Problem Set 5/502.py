@@ -1,0 +1,4 @@
+import re
+s = input()
+sub = input()
+print("Yes" if re.search(re.escape(sub), s) else "No")
