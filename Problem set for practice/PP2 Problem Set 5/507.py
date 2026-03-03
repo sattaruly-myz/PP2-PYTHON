@@ -1,0 +1,5 @@
+import re
+s = input()
+p = input()
+r = input()
+print(re.sub(re.escape(p), r, s))
