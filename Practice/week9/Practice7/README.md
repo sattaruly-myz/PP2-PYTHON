@@ -67,11 +67,3 @@ A simple interactive simulation focusing on boundary logic.
 
 Developed as part of the Principles of Programming II course.
 code Code
-
----
-
-### 📝 Файл: `Practice7/requirements.txt`
-*(Это тоже требуется в задании. Создай этот файл и вставь туда одну строчку):*
-
-```text
-pygame>=2.0.0
