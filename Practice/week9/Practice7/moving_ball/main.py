@@ -1,71 +1,71 @@
-from __future__ import annotations
-
-from dataclasses import dataclass
-from pathlib import Path
-import contextlib
-import time
-import wave
-
 import pygame
+import sys
 
+# Инициализация Pygame
+pygame.init()
 
-@dataclass
-class Track:
-    path: Path
-    duration: float
+# Константы
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+BALL_RADIUS = 25
+MOVE_STEP = 20
+FPS = 60
 
+# Создание окна
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Moving Ball Game")
 
-class MusicPlayer:
-    def __init__(self, music_dir: Path):
-        self.music_dir = music_dir
-        self.tracks = self._scan_tracks()
-        self.index = 0
-        self.is_playing = False
-        self.track_started_at = 0.0
+# Начальная позиция шарика (центр экрана)
+ball_x = SCREEN_WIDTH // 2
+ball_y = SCREEN_HEIGHT // 2
 
-    def _scan_tracks(self) -> list[Track]:
-        supported = {".wav", ".mp3", ".ogg"}
-        tracks: list[Track] = []
-        if self.music_dir.exists():
-            for p in sorted(self.music_dir.rglob("*")):
-                if p.is_file() and p.suffix.lower() in supported:
-                    tracks.append(Track(p, self._duration(p)))
-        return tracks
+# Часы для контроля FPS
+clock = pygame.time.Clock()
 
-    def _duration(self, path: Path) -> float:
-        try:
-            if path.suffix.lower() == ".wav":
-                with contextlib.closing(wave.open(str(path), "rb")) as wf:
-                    return wf.getnframes() / float(wf.getframerate())
-        except Exception:
-            pass
-        return 0.0
+# Основной игровой цикл
+running = True
+while running:
+    # Обработка событий
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        
+        # Обработка нажатий клавиш
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                # Двигаем вверх, если не выходит за границу
+                if ball_y - MOVE_STEP >= BALL_RADIUS:
+                    ball_y -= MOVE_STEP
+            
+            elif event.key == pygame.K_DOWN:
+                # Двигаем вниз, если не выходит за границу
+                if ball_y + MOVE_STEP <= SCREEN_HEIGHT - BALL_RADIUS:
+                    ball_y += MOVE_STEP
+            
+            elif event.key == pygame.K_LEFT:
+                # Двигаем влево, если не выходит за границу
+                if ball_x - MOVE_STEP >= BALL_RADIUS:
+                    ball_x -= MOVE_STEP
+            
+            elif event.key == pygame.K_RIGHT:
+                # Двигаем вправо, если не выходит за границу
+                if ball_x + MOVE_STEP <= SCREEN_WIDTH - BALL_RADIUS:
+                    ball_x += MOVE_STEP
+    
+    # Очистка экрана (белый фон)
+    screen.fill(WHITE)
+    
+    # Рисование красного шарика
+    pygame.draw.circle(screen, RED, (ball_x, ball_y), BALL_RADIUS)
+    
+    # Обновление экрана
+    pygame.display.flip()
+    
+    # Контроль FPS
+    clock.tick(FPS)
 
-    def current(self) -> Track | None:
-        return self.tracks[self.index] if self.tracks else None
-
-    def play(self) -> None:
-        track = self.current()
-        if track is None:
-            return
-        pygame.mixer.music.load(str(track.path))
-        pygame.mixer.music.play()
-        self.is_playing = True
-        self.track_started_at = time.time()
-
-    def stop(self) -> None:
-        pygame.mixer.music.stop()
-        self.is_playing = False
-
-    def next_track(self) -> None:
-        if self.tracks:
-            self.index = (self.index + 1) % len(self.tracks)
-            self.play()
-
-    def previous_track(self) -> None:
-        if self.tracks:
-            self.index = (self.index - 1) % len(self.tracks)
-            self.play()
-
-    def elapsed(self) -> float:
-        return max(0.0, time.time() - self.track_started_at) if self.is_playing else 0.0
+# Выход из игры
+pygame.quit()
+sys.exit()
