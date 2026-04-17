@@ -1,74 +1,71 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+import contextlib
+import time
+import wave
+
 import pygame
-import os
+
+
+@dataclass
+class Track:
+    path: Path
+    duration: float
 
 
 class MusicPlayer:
-    """
-    Manages a playlist of .mp3 / .wav files from a given folder.
-    Uses pygame.mixer for playback.
-    """
+    def __init__(self, music_dir: Path):
+        self.music_dir = music_dir
+        self.tracks = self._scan_tracks()
+        self.index = 0
+        self.is_playing = False
+        self.track_started_at = 0.0
 
-    SUPPORTED_EXT = (".mp3", ".wav")
+    def _scan_tracks(self) -> list[Track]:
+        supported = {".wav", ".mp3", ".ogg"}
+        tracks: list[Track] = []
+        if self.music_dir.exists():
+            for p in sorted(self.music_dir.rglob("*")):
+                if p.is_file() and p.suffix.lower() in supported:
+                    tracks.append(Track(p, self._duration(p)))
+        return tracks
 
-    def __init__(self, music_folder: str = "music"):
-        self.music_folder = music_folder
-        self.tracks: list[str] = []
-        self.current_index: int = 0
-        self.is_playing: bool = False
+    def _duration(self, path: Path) -> float:
+        try:
+            if path.suffix.lower() == ".wav":
+                with contextlib.closing(wave.open(str(path), "rb")) as wf:
+                    return wf.getnframes() / float(wf.getframerate())
+        except Exception:
+            pass
+        return 0.0
 
-        self._scan_folder()
+    def current(self) -> Track | None:
+        return self.tracks[self.index] if self.tracks else None
 
-    def _scan_folder(self):
-        """Find all supported audio files in the music folder."""
-        if not os.path.isdir(self.music_folder):
-            os.makedirs(self.music_folder)
-            print(f"[MusicPlayer] Created empty folder: '{self.music_folder}'")
+    def play(self) -> None:
+        track = self.current()
+        if track is None:
             return
-
-        for filename in sorted(os.listdir(self.music_folder)):
-            if filename.lower().endswith(self.SUPPORTED_EXT):
-                self.tracks.append(os.path.join(self.music_folder, filename))
-
-        print(f"[MusicPlayer] Found {len(self.tracks)} track(s).")
-
-    # ---------- Playback controls ----------
-
-    def play(self):
-        """Load and play the current track."""
-        if not self.tracks:
-            return
-        pygame.mixer.music.load(self.tracks[self.current_index])
+        pygame.mixer.music.load(str(track.path))
         pygame.mixer.music.play()
         self.is_playing = True
+        self.track_started_at = time.time()
 
-    def stop(self):
-        """Stop playback."""
+    def stop(self) -> None:
         pygame.mixer.music.stop()
         self.is_playing = False
 
-    def next_track(self):
-        """Switch to the next track (wraps around)."""
-        if not self.tracks:
-            return
-        self.current_index = (self.current_index + 1) % len(self.tracks)
-        if self.is_playing:
+    def next_track(self) -> None:
+        if self.tracks:
+            self.index = (self.index + 1) % len(self.tracks)
             self.play()
 
-    def prev_track(self):
-        """Switch to the previous track (wraps around)."""
-        if not self.tracks:
-            return
-        self.current_index = (self.current_index - 1) % len(self.tracks)
-        if self.is_playing:
+    def previous_track(self) -> None:
+        if self.tracks:
+            self.index = (self.index - 1) % len(self.tracks)
             self.play()
 
-    # ---------- Info ----------
-
-    def get_track_name(self) -> str:
-        """Return the filename of the currently selected track."""
-        if not self.tracks:
-            return "No tracks found in 'music/' folder"
-        return os.path.basename(self.tracks[self.current_index])
-
-    def get_status(self) -> str:
-        return "▶  Playing" if self.is_playing else "■  Stopped"
+    def elapsed(self) -> float:
+        return max(0.0, time.time() - self.track_started_at) if self.is_playing else 0.0

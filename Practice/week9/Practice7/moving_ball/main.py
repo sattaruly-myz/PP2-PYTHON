@@ -1,71 +1,71 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+import contextlib
+import time
+import wave
+
 import pygame
-from ball import Ball
-
-# --- Constants ---
-SCREEN_WIDTH  = 800
-SCREEN_HEIGHT = 600
-FPS           = 60
-STEP          = 20          # pixels per key press
-BG_COLOR      = (255, 255, 255)
-BALL_RADIUS   = 25
 
 
-def draw_instructions(screen: pygame.Surface, font: pygame.font.Font):
-    """Render control instructions in the top-left corner."""
-    lines = [
-        "Arrow Keys — Move Ball",
-        "ESC — Quit",
-    ]
-    for i, line in enumerate(lines):
-        text = font.render(line, True, (100, 100, 100))
-        screen.blit(text, (10, 10 + i * 22))
+@dataclass
+class Track:
+    path: Path
+    duration: float
 
 
-def main():
-    pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption("Moving Ball Game")
-    clock  = pygame.time.Clock()
-    font   = pygame.font.SysFont("Arial", 18)
+class MusicPlayer:
+    def __init__(self, music_dir: Path):
+        self.music_dir = music_dir
+        self.tracks = self._scan_tracks()
+        self.index = 0
+        self.is_playing = False
+        self.track_started_at = 0.0
 
-    # Create ball in the center of the screen
-    ball = Ball(
-        x=SCREEN_WIDTH  // 2,
-        y=SCREEN_HEIGHT // 2,
-        radius=BALL_RADIUS,
-        screen_width=SCREEN_WIDTH,
-        screen_height=SCREEN_HEIGHT,
-    )
+    def _scan_tracks(self) -> list[Track]:
+        supported = {".wav", ".mp3", ".ogg"}
+        tracks: list[Track] = []
+        if self.music_dir.exists():
+            for p in sorted(self.music_dir.rglob("*")):
+                if p.is_file() and p.suffix.lower() in supported:
+                    tracks.append(Track(p, self._duration(p)))
+        return tracks
 
-    running = True
-    while running:
+    def _duration(self, path: Path) -> float:
+        try:
+            if path.suffix.lower() == ".wav":
+                with contextlib.closing(wave.open(str(path), "rb")) as wf:
+                    return wf.getnframes() / float(wf.getframerate())
+        except Exception:
+            pass
+        return 0.0
 
-        # --- Event handling ---
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+    def current(self) -> Track | None:
+        return self.tracks[self.index] if self.tracks else None
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-                elif event.key == pygame.K_LEFT:
-                    ball.move(-STEP, 0)
-                elif event.key == pygame.K_RIGHT:
-                    ball.move(STEP, 0)
-                elif event.key == pygame.K_UP:
-                    ball.move(0, -STEP)
-                elif event.key == pygame.K_DOWN:
-                    ball.move(0, STEP)
+    def play(self) -> None:
+        track = self.current()
+        if track is None:
+            return
+        pygame.mixer.music.load(str(track.path))
+        pygame.mixer.music.play()
+        self.is_playing = True
+        self.track_started_at = time.time()
 
-        # --- Drawing ---
-        screen.fill(BG_COLOR)
-        draw_instructions(screen, font)
-        ball.draw(screen)
-        pygame.display.flip()
-        clock.tick(FPS)
+    def stop(self) -> None:
+        pygame.mixer.music.stop()
+        self.is_playing = False
 
-    pygame.quit()
+    def next_track(self) -> None:
+        if self.tracks:
+            self.index = (self.index + 1) % len(self.tracks)
+            self.play()
 
+    def previous_track(self) -> None:
+        if self.tracks:
+            self.index = (self.index - 1) % len(self.tracks)
+            self.play()
 
-if __name__ == "__main__":
-    main()
+    def elapsed(self) -> float:
+        return max(0.0, time.time() - self.track_started_at) if self.is_playing else 0.0
