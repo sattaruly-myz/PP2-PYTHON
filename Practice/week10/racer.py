@@ -1,8 +1,6 @@
 import pygame
 import random
-# Инициализация Pygame (обязательно перед любым кодом)
 pygame.init()
-# Размер окна
 WIDTH, HEIGHT = 400, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Racer Game")
@@ -14,29 +12,27 @@ BLACK = (0, 0, 0)
 # FPS
 clock = pygame.time.Clock()
 FPS = 60
-# ================= PLAYER =================
-# Создаём машину игрока (прямоугольник)
+# Создаём машину игрока
 player = pygame.Rect(WIDTH // 2 - 20, HEIGHT - 80, 40, 60)
 player_speed = 6
-# ================= COINS =================
+#COINS
 coins = []                # список монет
 coin_size = 20
 coin_speed = 5
 coin_spawn_delay = 40     # через сколько кадров появляется монета
 coin_timer = 0
-# ================= SCORE =================
+#SCORE
 score = 0
 font = pygame.font.SysFont(None, 30)
-# ================= GAME LOOP =================
+#GAME LOOP
 running = True
 while running:
     # Очистка экрана
     screen.fill(WHITE)
-    # ===== EVENTS =====
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    # ===== PLAYER CONTROL =====
+    #PLAYER CONTROL
     keys = pygame.key.get_pressed()
     # Движение влево
     if keys[pygame.K_LEFT]:
@@ -49,7 +45,7 @@ while running:
         player.x = 0
     if player.x > WIDTH - player.width:
         player.x = WIDTH - player.width
-    # ===== SPAWN COINS =====
+    # SPAWN COINS
     coin_timer += 1
     # Каждые N кадров создаём новую монету
     if coin_timer >= coin_spawn_delay:
@@ -57,8 +53,8 @@ while running:
         x = random.randint(0, WIDTH - coin_size)
         new_coin = pygame.Rect(x, 0, coin_size, coin_size)
         coins.append(new_coin)
-    # ===== UPDATE COINS =====
-    for coin in coins[:]:  # копия списка (чтобы безопасно удалять)
+    # UPDATE COINS
+    for coin in coins[:]:  # копия списка
         # Движение вниз
         coin.y += coin_speed
         # Проверка столкновения с игроком
@@ -68,17 +64,16 @@ while running:
         # Если монета ушла за экран — удаляем
         elif coin.y > HEIGHT:
             coins.remove(coin)
-    # ===== DRAW =====
+    #DRAW
     # Игрок
     pygame.draw.rect(screen, RED, player)
     # Монеты
     for coin in coins:
         pygame.draw.rect(screen, YELLOW, coin)
-    # ===== SCORE DISPLAY (правый верх) =====
+    #SCORE DISPLAY (правый верх)
     score_text = font.render(f"Coins: {score}", True, BLACK)
     screen.blit(score_text, (WIDTH - 120, 10))
     # Обновление экрана
     pygame.display.update()
     clock.tick(FPS)
-# Выход из игры
 pygame.quit()
