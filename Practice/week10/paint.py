@@ -174,7 +174,7 @@ while running:
                     
                     pygame.draw.rect(canvas, current_color, 
                                    (rect_x, rect_y, rect_width, rect_height), 
-                                   brush_size)
+                                   0)
                 
                 elif current_tool == TOOL_CIRCLE:
                     x1, y1 = shape_start_pos
@@ -218,7 +218,7 @@ while running:
             rect_height = abs(y2 - y1)
             pygame.draw.rect(screen, current_color, 
                            (rect_x, rect_y, rect_width, rect_height), 
-                           brush_size)
+                           0)
         
         elif current_tool == TOOL_CIRCLE:
             x1, y1 = shape_start_pos
