@@ -7,4 +7,13 @@ ROWS = (WINDOW_H - HUD_H) // GRID
 FPS = 60
 BASE_SPEED = 8
 FOOD_PER_LEVEL = 5
-DB_DSN = "host=localhost port=5432 dbname=snake_game user=postgres password=postgres"
+import os
+from dotenv import load_dotenv
+load_dotenv()
+DB_DSN = (
+f"host={os.getenv('DB_HOST', 'localhost')} "
+f"port={os.getenv('DB_PORT', '5432')} "
+f"dbname={os.getenv('DB_NAME', 'snake_game')} "
+f"user={os.getenv('DB_USER', 'postgres')} "
+f"password={os.getenv('DB_PASSWORD', '')}"
+)
