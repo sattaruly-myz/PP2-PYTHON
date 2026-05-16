@@ -14,7 +14,7 @@ BEGIN
     WHERE name = p_contact_name;
 
     IF v_contact_id IS NULL THEN
-        RAISE EXCEPTION 'Contact "%" not found', p_contact_name;
+        RAISE EXCEPTION 'Contact "%" not found', p_contact_name; --- не пытается чета записать, выдасть четкую ошибку
     END IF;
 
     IF p_type NOT IN ('home', 'work', 'mobile') THEN

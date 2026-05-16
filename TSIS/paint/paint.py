@@ -69,12 +69,12 @@ text_pos = None
 text_buf = ''
 
 
-def sid_tool(i):
+def sid_tool(i): #2 колонки
     r, c = divmod(i, 2)
     return pygame.Rect(4 + c * 62, 4 + r * 28, 60, 26)
 
 
-def sid_size(i):
+def sid_size(i): #Расставляет кнопки выбора толщины кисти в одну горизонтальную линию
     return pygame.Rect(4 + i * 40, 4 + 6 * 28 + 6, 38, 24)
 
 
@@ -96,7 +96,7 @@ def draw_sidebar():
         lbl = fn.render(LABELS[t], True, WHITE if t == tool else DARK)
         screen.blit(lbl, (rect.x + 2, rect.y + 7))
 
-    size_y = 4 + 6 * 28 + 2
+    size_y = 4 + 6 * 28 + 2 # размер кисты
     screen.blit(fn.render('Size:', True, DARK), (4, size_y))
     for i, s in enumerate(SIZES):
         rect = sid_size(i)
@@ -106,7 +106,7 @@ def draw_sidebar():
         lbl = fn.render(f'{i+1}:{s}px', True, WHITE if i == size_idx else DARK)
         screen.blit(lbl, (rect.x + 3, rect.y + 6))
 
-    base_y = 4 + 6 * 28 + 6 + 28
+    base_y = 4 + 6 * 28 + 6 + 28 #текущий цвет
     screen.blit(fn.render('Color:', True, DARK), (4, base_y + 4))
     pygame.draw.rect(screen, color, (68, base_y, 52, 28))
     pygame.draw.rect(screen, DARK, (68, base_y, 52, 28), 1)
@@ -117,7 +117,7 @@ def draw_sidebar():
         pygame.draw.rect(screen, DARK, rect, 1)
 
 
-def cpos(mx, my):
+def cpos(mx, my): # чтобы не рисовал в понел инструментов
     return mx - SIDEBAR, my
 
 

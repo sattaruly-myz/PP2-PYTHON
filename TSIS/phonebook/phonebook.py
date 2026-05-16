@@ -69,7 +69,7 @@ def search_contacts_menu():
         return
     try:
         with conn.cursor() as cur:
-            cur.execute("SELECT * FROM search_contacts(%s);", (query,))
+            cur.execute("SELECT * FROM search_contacts(%s);", (query,))#кортеж из одного элемента
             rows = cur.fetchall()
 
         if not rows:

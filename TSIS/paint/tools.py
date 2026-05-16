@@ -9,7 +9,7 @@ def flood_fill(surface, pos, new_color):
     if target == new_color:
         return
     queue = deque([(x, y)])
-    visited = set()
+    visited = set() #Чтобы не проверять один и тот же пиксель по кругу миллион раз (иначе программа зависнет)
     visited.add((x, y))
     while queue:
         cx, cy = queue.popleft()
@@ -23,6 +23,7 @@ def flood_fill(surface, pos, new_color):
 
 
 def draw_shape(surface, tool, start, end, color, size):
+    #surface куда рисовать (холст)
     import math
     x1, y1 = start
     x2, y2 = end

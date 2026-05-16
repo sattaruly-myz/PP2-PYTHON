@@ -18,13 +18,14 @@ FN_LB  = pygame.font.SysFont('Courier', 17)
 BG1 = (12, 12, 22)
 BG2 = (18, 18, 30)
 
+# STATE управляет тем, какой экран сейчас видит пользователь
 STATE    = 'menu'
 settings = load_settings()
 username = ''
 game     = None
 results  = None
 
-CX = W // 2
+CX = W // 2 # выравнивание чтобы было удобно
 
 menu_btns = [
     Button((CX-110, 230, 220, 52), 'Play',        FN_BIG),
@@ -61,7 +62,7 @@ go_retry = Button((CX-115, 510, 220, 52), 'Retry',     FN_BIG)
 go_menu  = Button((CX-115, 578, 220, 52), 'Main Menu', FN_BIG)
 
 
-def draw_bg(surf):
+def draw_bg(surf): # фон
     surf.fill(BG1)
     for gy in range(0, H, 75):
         for gx in range(0, W, 75):
@@ -86,7 +87,7 @@ def screen_name(surf):
     name_btn.draw(surf)
 
 
-def screen_settings(surf):
+def screen_settings(surf): # сложность и цвет машын
     draw_bg(surf)
     t = FN_BIG.render('Settings', True, (255,255,255))
     surf.blit(t, t.get_rect(center=(CX, 140)))
